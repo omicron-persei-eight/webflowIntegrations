@@ -1,0 +1,54 @@
+
+<head>
+	<script async src="https://talk.hyvor.com/embed/embed.js" type="module"></script>
+	<script type="module">
+	  import { WfuUserInfo, WfuUser } from 'https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@4.7/src/modules/webflow-membership.js'; 
+	  import { WfuDataBinder } from 'https://cdn.jsdelivr.net/gh/sygnaltech/webflow-util@4.7/src/modules/webflow-databind.min.js'; 
+	
+	  $(function() {
+		var membership = new WfuUserInfo({
+		  userInfoUpdatedCallback: wfucallback
+		}).init(); 
+	  });  
+	
+	  async function wfucallback(user) {
+		var dataBinder = new WfuDataBinder({
+		  user: user
+		}).bind();
+		if (WfuUser.current !== null) {
+		loadComments(user);
+	  }
+	  }
+	</script>
+</head>
+
+<body>
+<!-- Using HYVOR V3 implementation refer https://talk.hyvor.com/docsv3/install. Prerequisites are having HYVOR configured properly for SSO refer https://talk.hyvor.com/docsv3/sso-stateless-keyless and memberships enabled on webflow refer https://university.webflow.com/lesson/webflow-memberships-overview. Uses Sygnal Attributes refer https://attr.sygnal.com/webflow-membership/get-logged-in-user-info  -->
+	<div>
+		<h1>
+		SOME CONTENT HERE......
+		</h1>
+	  </div>
+	  <div id='commentsSection'>
+		<hyvor-talk-comments 
+		  website-id="MY_ID" 
+		  page-id="MY_PAGE_ID"
+		  loading="manual"
+		  sso-user=""
+	  ></hyvor-talk-comments>
+		<script type="text/javascript">
+		  function loadComments(user) {
+			var userData = user ? {
+				timestamp: Math.floor(Date.now() / 1000),
+			  id: user.user_id_alt,
+			  name: user.name_short_tcase || user.email.replace(/@.+/, ''),
+			  email: user.email,
+			} : {}
+			userData = btoa(JSON.stringify(userData))
+			var comments = document.querySelector("hyvor-talk-comments");
+			comments.setAttribute('sso-user', userData);
+			comments.load();
+		}
+		</script>
+	  </div>
+</body>
